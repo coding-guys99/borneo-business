@@ -4,6 +4,7 @@ export type CompanyProfile = {
   region: string
   capabilities: string[]
   markets: string[]
+  opportunity_markets?: string[]
   looking_for: string[]
 }
 
@@ -57,9 +58,10 @@ export function matchOpportunity(opportunity: Opportunity, company: CompanyProfi
     reasons.push(`${keywordMatches[0]} keyword match`)
   }
 
-  if (opportunity.region === company.region || company.markets.includes(opportunity.region)) {
+  const targetMarkets = company.opportunity_markets?.length ? company.opportunity_markets : company.markets
+  if (opportunity.region === company.region || targetMarkets.includes(opportunity.region)) {
     score += 25
-    reasons.push(`${opportunity.region} market`)
+    reasons.push(`${opportunity.region} opportunity market`)
   }
 
   const wantsTender = company.looking_for.some(x => ['Tenders', 'Projects', 'Customers'].includes(x))
