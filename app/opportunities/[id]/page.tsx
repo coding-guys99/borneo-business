@@ -2,11 +2,38 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getOpportunityById } from '@/lib/data'
 import OpportunityPipelineAction from '@/components/opportunity-pipeline-action'
+import PublicHeader from '@/components/public-header'
+
+function plainSummary(title:string,buyer:string){
+ const t=title.toLowerCase()
+ if(t.includes('maintenance')||t.includes('penyelenggaraan')||t.includes('repair')||t.includes('baikpulih')) return `A public procurement project from ${buyer} for maintenance, repair or upgrading work described in the official notice.`
+ if(t.includes('supply')||t.includes('membekal')||t.includes('delivery')) return `A public supply opportunity from ${buyer}. The selected vendor is expected to supply and/or deliver the items described in the official tender documents.`
+ if(t.includes('construction')||t.includes('pembinaan')||t.includes('membina')) return `A public works project from ${buyer} involving construction or infrastructure work. Contractor eligibility and site requirements must be checked on the official notice.`
+ if(t.includes('installation')||t.includes('pemasangan')) return `A public project from ${buyer} involving installation work and related supply/services.`
+ return `A public procurement opportunity issued by ${buyer}. This page simplifies the key information so you can decide whether it is worth opening the full official notice.`
+}
+function likelyNeeds(title:string,industry:string|null){
+ const t=title.toLowerCase(); const needs:string[]=[]
+ if(t.includes('maintenance')||t.includes('penyelenggaraan')||t.includes('repair')||t.includes('baikpulih')) needs.push('Relevant maintenance / repair capability')
+ if(t.includes('construction')||t.includes('pembinaan')||t.includes('membina')||t.includes('road')||t.includes('jalan')) needs.push('Qualified contractor / civil works capability')
+ if(t.includes('supply')||t.includes('membekal')||t.includes('delivery')) needs.push('Product supply and delivery capability')
+ if(t.includes('installation')||t.includes('pemasangan')) needs.push('Installation and commissioning capability')
+ if(industry) needs.push(`${industry} experience or related capability`)
+ needs.push('Eligibility, registration and documents stated in the official tender notice')
+ return Array.from(new Set(needs)).slice(0,4)
+}
 
 export default async function OpportunityDetailPage({params}:{params:Promise<{id:string}>}){
   const {id}=await params
   const opportunity=await getOpportunityById(id)
-  if(!opportunity) notFound()
+  if(!opportunity||opportunity.region!=='Sarawak') notFound()
   const isOpen=!opportunity.closing_date||opportunity.closing_date>=new Date().toISOString().slice(0,10)
-  return <><header className="topbar"><div className="container nav"><Link className="brand" href="/">BORNEO / BUSINESS</Link><nav className="navlinks"><Link href="/opportunities">Opportunities</Link><Link href="/market">Market</Link></nav><div className="push"><Link className="btn" href="/signin">Sign In</Link></div></div></header><main className="section"><div className="container detail-layout"><section><Link className="source back-link" href="/opportunities">← Back to Opportunities</Link><div className="eyebrow">{opportunity.opportunity_type} · {opportunity.region}</div><h1 className="detail-title">{opportunity.title}</h1><div className="detail-tags"><span className={`status-pill ${isOpen?'open':'closed'}`}>{isOpen?'Open':'Closed'}</span><span className="tag">{opportunity.industry??'General'}</span><span className="tag">{opportunity.source_type}</span></div><div className="panel detail-panel"><div className="detail-grid"><div><span>Buyer</span><strong>{opportunity.buyer}</strong></div><div><span>Reference</span><strong>{opportunity.reference??'—'}</strong></div><div><span>Market</span><strong>{opportunity.region}, {opportunity.country}</strong></div><div><span>Posted</span><strong>{opportunity.posted_date??'—'}</strong></div><div><span>Closing</span><strong>{opportunity.closing_date??'—'}</strong></div><div><span>Type</span><strong>{opportunity.opportunity_type}</strong></div></div></div><div className="panel"><div className="panel-title">Source & verification</div><p className="sub tight">This record is sourced from a public official procurement page. Borneo Business does not replace the buyer's official tender documentation.</p><a className="btn" href={opportunity.source_url} target="_blank" rel="noreferrer">Open official source ↗</a></div></section><aside className="detail-aside"><div className="panel sticky-panel"><div className="eyebrow">Take action</div><h2>Track this opportunity</h2><p className="meta">Save it into your private Pipeline, then move it through Contacted, Quoted, Won or Lost.</p><OpportunityPipelineAction opportunityId={opportunity.id}/><hr/><Link className="btn full" href="/onboarding">Build a company profile</Link></div></aside></div></main></>
+  const needs=likelyNeeds(opportunity.title,opportunity.industry)
+  return <><PublicHeader/><main className="section"><div className="container detail-layout"><section><Link className="source back-link" href="/opportunities">← Back to Sarawak Opportunities</Link><div className="eyebrow">{opportunity.opportunity_type} · Sarawak</div><h1 className="detail-title">{opportunity.title}</h1><div className="detail-tags"><span className={`status-pill ${isOpen?'open':'closed'}`}>{isOpen?'Open':'Closed / archive'}</span><span className="tag">{opportunity.industry??'General'}</span><span className="tag">Official-source record</span></div>
+  <div className="panel detail-panel"><div className="panel-title">Project brief</div><p className="sub tight">{plainSummary(opportunity.title,opportunity.buyer)}</p><p className="meta">This is a simplified interpretation of the public notice title, not a replacement for the tender documents.</p></div>
+  <div className="panel"><div className="panel-title">What this project likely needs</div><div className="requirement-list">{needs.map(x=><div key={x}>✓ {x}</div>)}</div></div>
+  <div className="panel"><div className="panel-title">Key project information</div><div className="detail-grid"><div><span>Buyer / agency</span><strong>{opportunity.buyer}</strong></div><div><span>Reference</span><strong>{opportunity.reference??'—'}</strong></div><div><span>Market</span><strong>Sarawak, Malaysia</strong></div><div><span>Posted</span><strong>{opportunity.posted_date??'—'}</strong></div><div><span>Closing</span><strong>{opportunity.closing_date??'—'}</strong></div><div><span>Procurement type</span><strong>{opportunity.opportunity_type}</strong></div></div></div>
+  <div className="panel"><div className="panel-title">How to contact / apply</div><p className="sub tight">Applications, tender documents, site-visit instructions and agency contact details must be taken from the official procurement notice. Borneo Business links you back to the source so you do not act on incomplete information.</p><a className="btn primary" href={opportunity.source_url} target="_blank" rel="noreferrer">Open official tender website ↗</a></div>
+  <div className="panel"><div className="panel-title">Before you decide to bid</div><div className="requirement-list"><div>1. Confirm eligibility / contractor class on the official notice.</div><div>2. Check compulsory site visit or briefing requirements.</div><div>3. Download the official scope and tender documents.</div><div>4. Confirm closing time and submission method.</div></div></div>
+  </section><aside className="detail-aside"><div className="panel sticky-panel"><div className="eyebrow">Take action</div><h2>Worth pursuing?</h2><p className="meta">Save the project into your private Pipeline, then track it from Interested to Quoted, Won or Lost.</p><OpportunityPipelineAction opportunityId={opportunity.id}/><hr/><a className="btn full" href={opportunity.source_url} target="_blank" rel="noreferrer">Official website ↗</a><Link className="btn full" href="/onboarding">Build company profile</Link></div></aside></div></main></>
 }
