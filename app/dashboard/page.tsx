@@ -15,53 +15,9 @@ export default function DashboardPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [pipeline, setPipeline] = useState<PipelineRow[]>([])
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      const { data: auth } = await supabase.auth.getUser()
-      const user = auth.user
-      if (!user) return
-      const [{ data: companyData }, { data: oppData }, { data: pipelineData }] = await Promise.all([
-        supabase.from('companies').select('*').eq('owner_id', user.id).order('created_at', { ascending: true }).limit(1).maybeSingle(),
-        supabase.from('opportunities').select('*').order('closing_date', { ascending: false, nullsFirst: false }),
-        supabase.from('pipeline_items').select('id,opportunity_id,stage,deal_value').eq('user_id', user.id),
-      ])
-      setCompany((companyData as CompanyRow | null) ?? null)
-      setOpportunities((oppData as Opportunity[] | null) ?? [])
-      setPipeline((pipelineData as PipelineRow[] | null) ?? [])
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  const matches = useMemo(() => {
-    if (!company) return []
-    return opportunities
-      .map(o => ({ opportunity: o, match: matchOpportunity(o, company) }))
-      .filter(x => x.match.score > 0)
-      .sort((a, b) => b.match.score - a.match.score || String(b.opportunity.closing_date).localeCompare(String(a.opportunity.closing_date)))
-  }, [company, opportunities])
-
-  const savedIds = new Set(pipeline.map(p => p.opportunity_id).filter(Boolean))
-  const won = pipeline.filter(p => p.stage === 'Won')
-  const generated = won.reduce((sum, p) => sum + Number(p.deal_value ?? 0), 0)
-
-  async function saveOpportunity(id: string) {
-    const { data: auth } = await supabase.auth.getUser()
-    if (!auth.user || savedIds.has(id)) return
-    const { data } = await supabase.from('pipeline_items').insert({ user_id: auth.user.id, opportunity_id: id, stage: 'New', currency: 'MYR', verified: false }).select('id,opportunity_id,stage,deal_value').single()
-    if (data) setPipeline(v => [...v, data as PipelineRow])
-  }
-
-  return <MemberShell><main className="member-page"><div className="container">
-    <div className="member-heading"><div><div className="eyebrow">Personal Business Radar</div><h1 className="page-title">{company ? `${company.name} Radar` : 'Business Radar'}</h1><p className="sub">Matches are calculated from your company capabilities, target markets and business goals.</p></div><Link className="btn" href="/profile">Edit profile</Link></div>
-
-    {loading ? <div className="panel">Loading live business intelligence…</div> : !company ? <div className="empty-state"><h2>Finish your company profile</h2><p>Your Radar needs capabilities and target markets before it can calculate real matches.</p><Link className="btn primary" href="/profile">Complete profile</Link></div> : <>
-      <div className="kpis member-kpis"><div className="kpi"><strong>{matches.length}</strong><span>Profile-matched opportunities</span></div><div className="kpi"><strong>{matches.filter(x => x.match.score >= 70).length}</strong><span>High match</span></div><div className="kpi"><strong>{pipeline.length}</strong><span>Pipeline opportunities</span></div><div className="kpi"><strong>RM{generated.toLocaleString()}</strong><span>Won business recorded</span></div></div>
-
-      <section className="section compact"><div className="section-head"><div><div className="eyebrow">Highest relevance</div><h2>Recommended for your company</h2></div><Link className="source" href="/opportunities">Browse market →</Link></div>
-        {matches.length === 0 ? <div className="empty-state"><h2>No matches yet</h2><p>Add more capabilities or markets in Company Profile.</p></div> : <div className="grid">{matches.slice(0, 9).map(({ opportunity: o, match }) => <article className="card opportunity-card" key={o.id}><div className="score-row"><span className="match-score">{match.score}% profile match</span><span className="status-dot">Official</span></div><div className="eyebrow">{o.region} · {o.opportunity_type}</div><Link href={`/opportunities/${o.id}`} className="title link-title">{o.title}</Link><div className="meta">{o.buyer}<br/>Closing {o.closing_date ?? '—'}</div><div className="why-match">{match.reasons.slice(0,3).map(r => <span key={r}>✓ {r}</span>)}</div><div className="card-actions"><Link className="btn small" href={`/opportunities/${o.id}`}>View</Link><button className="btn small primary" disabled={savedIds.has(o.id)} onClick={() => saveOpportunity(o.id)}>{savedIds.has(o.id) ? 'Saved' : 'Save to Pipeline'}</button></div></article>)}</div>}
-      </section>
-    </>}
-  </div></main></MemberShell>
+  useEffect(() => { async function load() { const { data: auth } = await supabase.auth.getUser(); const user=auth.user; if(!user)return; const [{data:companyData},{data:oppData},{data:pipelineData}]=await Promise.all([supabase.from('companies').select('*').eq('owner_id',user.id).order('created_at',{ascending:true}).limit(1).maybeSingle(),supabase.from('opportunities').select('*').eq('region','Sarawak').order('closing_date',{ascending:false,nullsFirst:false}),supabase.from('pipeline_items').select('id,opportunity_id,stage,deal_value').eq('user_id',user.id)]); setCompany((companyData as CompanyRow|null)??null); setOpportunities((oppData as Opportunity[]|null)??[]); setPipeline((pipelineData as PipelineRow[]|null)??[]); setLoading(false)} load() },[])
+  const matches=useMemo(()=>!company?[]:opportunities.map(o=>({opportunity:o,match:matchOpportunity(o,company)})).filter(x=>x.match.score>0).sort((a,b)=>b.match.score-a.match.score||String(b.opportunity.closing_date).localeCompare(String(a.opportunity.closing_date))),[company,opportunities])
+  const savedIds=new Set(pipeline.map(p=>p.opportunity_id).filter(Boolean)); const won=pipeline.filter(p=>p.stage==='Won'); const generated=won.reduce((s,p)=>s+Number(p.deal_value??0),0)
+  async function saveOpportunity(id:string){const {data:auth}=await supabase.auth.getUser();if(!auth.user||savedIds.has(id))return;const {data}=await supabase.from('pipeline_items').insert({user_id:auth.user.id,opportunity_id:id,stage:'New',currency:'MYR',verified:false}).select('id,opportunity_id,stage,deal_value').single();if(data)setPipeline(v=>[...v,data as PipelineRow])}
+  return <MemberShell><main className="member-page"><div className="container"><div className="member-heading"><div><div className="eyebrow">Sarawak Personal Business Radar</div><h1 className="page-title">{company?`${company.name} Radar`:'Business Radar'}</h1><p className="sub">Launch focus is Sarawak. Your wider Borneo market preferences are saved for future market expansion.</p></div><Link className="btn" href="/profile">Edit profile</Link></div>{loading?<div className="panel">Loading live business intelligence…</div>:!company?<div className="empty-state"><h2>Finish your company profile</h2><p>Your Radar needs capabilities and target markets before it can calculate real matches.</p><Link className="btn primary" href="/profile">Complete profile</Link></div>:<><div className="kpis member-kpis"><div className="kpi"><strong>{matches.length}</strong><span>Sarawak profile matches</span></div><div className="kpi"><strong>{matches.filter(x=>x.match.score>=70).length}</strong><span>High match</span></div><div className="kpi"><strong>{pipeline.length}</strong><span>Pipeline opportunities</span></div><div className="kpi"><strong>RM{generated.toLocaleString()}</strong><span>Won business recorded</span></div></div><section className="section compact"><div className="section-head"><div><div className="eyebrow">Highest relevance</div><h2>Recommended Sarawak projects</h2></div><Link className="source" href="/opportunities">Browse market →</Link></div>{matches.length===0?<div className="empty-state"><h2>No matches yet</h2><p>Add more capabilities in Company Profile.</p></div>:<div className="grid">{matches.slice(0,9).map(({opportunity:o,match})=><article className="card opportunity-card" key={o.id}><div className="score-row"><span className="match-score">{match.score}% profile match</span><span className="status-dot">Official</span></div><div className="eyebrow">Sarawak · {o.opportunity_type}</div><Link href={`/opportunities/${o.id}`} className="title link-title">{o.title}</Link><div className="meta">{o.buyer}<br/>Closing {o.closing_date??'—'}</div><div className="why-match">{match.reasons.slice(0,3).map(r=><span key={r}>✓ {r}</span>)}</div><div className="card-actions"><Link className="btn small" href={`/opportunities/${o.id}`}>View project</Link><button className="btn small primary" disabled={savedIds.has(o.id)} onClick={()=>saveOpportunity(o.id)}>{savedIds.has(o.id)?'Saved':'Save to Pipeline'}</button></div></article>)}</div>}</section></>}</div></main></MemberShell>
 }
