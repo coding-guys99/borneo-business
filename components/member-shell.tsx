@@ -1,0 +1,56 @@
+'use client'
+
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { supabase } from '@/lib/browser-supabase'
+
+export default function MemberShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [ready, setReady] = useState(false)
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    let active = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return
+      if (!data.session) {
+        router.replace(`/signin?next=${encodeURIComponent(pathname)}`)
+        return
+      }
+      setEmail(data.session.user.email ?? '')
+      setReady(true)
+    })
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.replace('/signin')
+      else { setEmail(session.user.email ?? ''); setReady(true) }
+    })
+    return () => { active = false; listener.subscription.unsubscribe() }
+  }, [pathname, router])
+
+  async function signOut() {
+    await supabase.auth.signOut()
+    router.replace('/')
+  }
+
+  if (!ready) return <main className="member-loading">Opening your Business Radar…</main>
+
+  const links = [
+    ['/dashboard', 'Radar'],
+    ['/pipeline', 'Pipeline'],
+    ['/network', 'Network'],
+    ['/profile', 'Company Profile'],
+  ]
+
+  return <>
+    <header className="member-topbar">
+      <div className="container member-nav">
+        <Link className="brand" href="/dashboard">BORNEO / BUSINESS</Link>
+        <nav className="member-links">{links.map(([href, label]) => <Link key={href} className={pathname === href ? 'active' : ''} href={href}>{label}</Link>)}</nav>
+        <div className="member-account"><span>{email}</span><button className="btn small" onClick={signOut}>Sign out</button></div>
+      </div>
+    </header>
+    {children}
+  </>
+}
