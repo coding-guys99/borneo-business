@@ -57,9 +57,9 @@ export default function GuidePage(){
 }
 
 function GuideStep({no,done,title,text,href,action}:{no:string;done:boolean;title:string;text:string;href:string;action:string}){
-  return <section className="panel" style={{display:'grid',gridTemplateColumns:'56px minmax(0,1fr) auto',gap:16,alignItems:'center'}}>
-    <div style={{width:46,height:46,borderRadius:8,border:'1px solid #DDE4EA',display:'grid',placeItems:'center',fontWeight:800,color:done?'#163B65':'#647181'}}>{done?'✓':no}</div>
-    <div><div className="panel-title" style={{marginBottom:5}}>{title}</div><p className="meta" style={{margin:0}}>{text}</p></div>
+  return <section className="panel" style={{display:'flex',gap:16,alignItems:'center',flexWrap:'wrap'}}>
+    <div style={{width:46,height:46,flex:'0 0 46px',borderRadius:8,border:'1px solid #DDE4EA',display:'grid',placeItems:'center',fontWeight:800,color:done?'#163B65':'#647181'}}>{done?'✓':no}</div>
+    <div style={{flex:'1 1 300px',minWidth:0}}><div className="panel-title" style={{marginBottom:5}}>{title}</div><p className="meta" style={{margin:0}}>{text}</p></div>
     <Link className={done?'btn':'btn primary'} href={href}>{done?'Review':action}</Link>
   </section>
 }
