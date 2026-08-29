@@ -1,4 +1,5 @@
 import './globals.css'
+import './mobile-enhancements.css'
 import { LanguageProvider } from '@/components/i18n'
 
 export const metadata = {
