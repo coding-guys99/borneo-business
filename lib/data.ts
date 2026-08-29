@@ -26,13 +26,13 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_gZitOhTr8USGqEJFyBvOHQ_VsSM9T1O
 const headers = { apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` }
 
 export async function getOpportunities(): Promise<Opportunity[]> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&order=closing_date.desc.nullslast`, { headers, next: { revalidate: 300 } })
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&order=posted_date.desc.nullslast,closing_date.desc.nullslast`, { headers, cache: 'no-store' })
   if (!res.ok) return []
   return res.json()
 }
 
 export async function getOpportunityById(id: string): Promise<Opportunity | null> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&id=eq.${encodeURIComponent(id)}&limit=1`, { headers, next: { revalidate: 300 } })
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&id=eq.${encodeURIComponent(id)}&limit=1`, { headers, cache: 'no-store' })
   if (!res.ok) return null
   const rows: Opportunity[] = await res.json()
   return rows[0] ?? null
@@ -40,7 +40,7 @@ export async function getOpportunityById(id: string): Promise<Opportunity | null
 
 export async function getPlatformMetrics(): Promise<PlatformMetrics> {
   const fallback = { opportunities_tracked: 0, companies_indexed: 0, verified_deals: 0, verified_business_generated: 0, currency: 'MYR' }
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/platform_metrics?select=*`, { headers, next: { revalidate: 60 } })
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/platform_metrics?select=*`, { headers, cache: 'no-store' })
   if (!res.ok) return fallback
   const rows = await res.json()
   return rows[0] ?? fallback
