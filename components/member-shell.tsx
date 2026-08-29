@@ -13,20 +13,37 @@ export default function MemberShell({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     let active = true
-    supabase.auth.getSession().then(({ data }) => {
+
+    async function validate() {
+      const { data, error } = await supabase.auth.getUser()
       if (!active) return
-      if (!data.session) {
+      if (error || !data.user) {
         router.replace(`/signin?next=${encodeURIComponent(pathname)}`)
         return
       }
-      setEmail(data.session.user.email ?? '')
+      setEmail(data.user.email ?? '')
       setReady(true)
+    }
+
+    validate()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return
+      if (event === 'SIGNED_OUT') {
+        setReady(false)
+        router.replace('/signin')
+        return
+      }
+      if (session?.user) {
+        setEmail(session.user.email ?? '')
+        setReady(true)
+      }
     })
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) router.replace('/signin')
-      else { setEmail(session.user.email ?? ''); setReady(true) }
-    })
-    return () => { active = false; listener.subscription.unsubscribe() }
+
+    return () => {
+      active = false
+      listener.subscription.unsubscribe()
+    }
   }, [pathname, router])
 
   async function signOut() {
@@ -41,6 +58,7 @@ export default function MemberShell({ children }: { children: React.ReactNode })
     ['/pipeline', 'Pipeline'],
     ['/network', 'Network'],
     ['/profile', 'Company Profile'],
+    ['/guide', 'Guide'],
   ]
 
   return <>
