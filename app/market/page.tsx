@@ -1,12 +1,11 @@
-import Link from 'next/link'
 import { getOpportunities } from '@/lib/data'
+import PublicHeader from '@/components/public-header'
+import WelcomeTour from '@/components/welcome-tour'
 
 export default async function MarketPage() {
-  const opportunities = await getOpportunities()
-  const count = (region: string) => opportunities.filter(o => o.region === region).length
+  const opportunities = (await getOpportunities()).filter(o=>o.region==='Sarawak')
   const industries = new Set(opportunities.map(o => o.industry).filter(Boolean)).size
-  return <>
-    <header className="topbar"><div className="container nav"><Link className="brand" href="/">BORNEO / BUSINESS</Link><nav className="navlinks"><Link href="/opportunities">Opportunities</Link><Link href="/market">Market</Link></nav></div></header>
-    <main className="section"><div className="container"><div className="eyebrow">Market intelligence</div><h1 className="page-title">Borneo market coverage</h1><p className="sub">Coverage is calculated directly from the live expoLink Supabase opportunity database.</p><div className="market-grid"><div className="market-card"><strong>{count('Sabah')}</strong><span>Sabah opportunities</span></div><div className="market-card"><strong>{count('Sarawak')}</strong><span>Sarawak opportunities</span></div><div className="market-card"><strong>{count('Brunei')}</strong><span>Brunei opportunities</span></div><div className="market-card"><strong>{industries}</strong><span>Industries classified</span></div></div></div></main>
-  </>
+  const buyers = new Set(opportunities.map(o => o.buyer).filter(Boolean)).size
+  const open = opportunities.filter(o=>!o.closing_date||o.closing_date>=new Date().toISOString().slice(0,10)).length
+  return <><PublicHeader/><WelcomeTour mode="public"/><main className="section"><div className="container"><div className="eyebrow">Sarawak market intelligence</div><h1 className="page-title">Sarawak opportunity coverage</h1><p className="sub">The first launch market is Sarawak. Sabah and Brunei are intentionally hidden while we deepen Sarawak buyer, project and supplier coverage.</p><div className="market-grid"><div className="market-card"><strong>{opportunities.length}</strong><span>Sarawak records indexed</span></div><div className="market-card"><strong>{open}</strong><span>Currently open in our database</span></div><div className="market-card"><strong>{buyers}</strong><span>Public buyers observed</span></div><div className="market-card"><strong>{industries}</strong><span>Industries classified</span></div></div></div></main></>
 }
