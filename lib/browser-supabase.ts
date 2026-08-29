@@ -1,8 +1,11 @@
 'use client'
 
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
-export const supabase = createClient(
-  'https://edpdaxgphxrzvfjquzgp.supabase.co',
-  'sb_publishable_gZitOhTr8USGqEJFyBvOHQ_VsSM9T1O'
+const supabaseUrl = 'https://edpdaxgphxrzvfjquzgp.supabase.co'
+const supabasePublishableKey = 'sb_publishable_gZitOhTr8USGqEJFyBvOHQ_VsSM9T1O'
+
+export const supabase = createBrowserClient(
+  supabaseUrl,
+  supabasePublishableKey
 )
