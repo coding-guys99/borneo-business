@@ -11,6 +11,7 @@ export type Opportunity = {
   source_url: string
   source_type: string
   industry: string | null
+  last_checked_at: string | null
 }
 
 export type OpportunityAward = {
