@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getOpportunityById } from '@/lib/data'
 import OpportunityPipelineAction from '@/components/opportunity-pipeline-action'
+import OpportunityTranslation from '@/components/opportunity-translation'
 import PublicHeader from '@/components/public-header'
 
 function plainSummary(title:string,buyer:string){
@@ -24,16 +25,16 @@ function likelyNeeds(title:string,industry:string|null){
 }
 
 export default async function OpportunityDetailPage({params}:{params:Promise<{id:string}>}){
-  const {id}=await params
-  const opportunity=await getOpportunityById(id)
-  if(!opportunity||opportunity.region!=='Sarawak') notFound()
-  const isOpen=!opportunity.closing_date||opportunity.closing_date>=new Date().toISOString().slice(0,10)
-  const needs=likelyNeeds(opportunity.title,opportunity.industry)
-  return <><PublicHeader/><main className="section"><div className="container detail-layout"><section><Link className="source back-link" href="/opportunities">← Back to Sarawak Opportunities</Link><div className="eyebrow">{opportunity.opportunity_type} · Sarawak</div><h1 className="detail-title">{opportunity.title}</h1><div className="detail-tags"><span className={`status-pill ${isOpen?'open':'closed'}`}>{isOpen?'Open':'Closed / archive'}</span><span className="tag">{opportunity.industry??'General'}</span><span className="tag">Official-source record</span></div>
-  <div className="panel detail-panel"><div className="panel-title">Project brief</div><p className="sub tight">{plainSummary(opportunity.title,opportunity.buyer)}</p><p className="meta">This is a simplified interpretation of the public notice title, not a replacement for the tender documents.</p></div>
-  <div className="panel"><div className="panel-title">What this project likely needs</div><div className="requirement-list">{needs.map(x=><div key={x}>✓ {x}</div>)}</div></div>
-  <div className="panel"><div className="panel-title">Key project information</div><div className="detail-grid"><div><span>Buyer / agency</span><strong>{opportunity.buyer}</strong></div><div><span>Reference</span><strong>{opportunity.reference??'—'}</strong></div><div><span>Market</span><strong>Sarawak, Malaysia</strong></div><div><span>Posted</span><strong>{opportunity.posted_date??'—'}</strong></div><div><span>Closing</span><strong>{opportunity.closing_date??'—'}</strong></div><div><span>Procurement type</span><strong>{opportunity.opportunity_type}</strong></div></div></div>
-  <div className="panel"><div className="panel-title">How to contact / apply</div><p className="sub tight">Applications, tender documents, site-visit instructions and agency contact details must be taken from the official procurement notice. Borneo Business links you back to the source so you do not act on incomplete information.</p><a className="btn primary" href={opportunity.source_url} target="_blank" rel="noreferrer">Open official tender website ↗</a></div>
-  <div className="panel"><div className="panel-title">Before you decide to bid</div><div className="requirement-list"><div>1. Confirm eligibility / contractor class on the official notice.</div><div>2. Check compulsory site visit or briefing requirements.</div><div>3. Download the official scope and tender documents.</div><div>4. Confirm closing time and submission method.</div></div></div>
-  </section><aside className="detail-aside"><div className="panel sticky-panel"><div className="eyebrow">Take action</div><h2>Worth pursuing?</h2><p className="meta">Save the project into your private Pipeline, then track it from Interested to Quoted, Won or Lost.</p><OpportunityPipelineAction opportunityId={opportunity.id}/><hr/><a className="btn full" href={opportunity.source_url} target="_blank" rel="noreferrer">Official website ↗</a><Link className="btn full" href="/onboarding">Build company profile</Link></div></aside></div></main></>
+ const {id}=await params
+ const opportunity=await getOpportunityById(id)
+ if(!opportunity||opportunity.region!=='Sarawak') notFound()
+ const isOpen=!opportunity.closing_date||opportunity.closing_date>=new Date().toISOString().slice(0,10)
+ const needs=likelyNeeds(opportunity.title,opportunity.industry)
+ const contactText='Applications, tender documents, site-visit instructions and agency contact details must be taken from the official procurement notice. Borneo Business links you back to the source so you do not act on incomplete information.'
+ const beforeBid=['Confirm eligibility / contractor class on the official notice.','Check compulsory site visit or briefing requirements.','Download the official scope and tender documents.','Confirm closing time and submission method.']
+ return <><PublicHeader/><main className="section"><div className="container detail-layout"><section><Link className="source back-link" href="/opportunities">← Back to Sarawak Opportunities</Link><div className="eyebrow">{opportunity.opportunity_type} · Sarawak</div><h1 className="detail-title">{opportunity.title}</h1><div className="detail-tags"><span className={`status-pill ${isOpen?'open':'closed'}`}>{isOpen?'Open':'Closed / archive'}</span><span className="tag">{opportunity.industry??'General'}</span><span className="tag">Official-source record</span></div>
+ <OpportunityTranslation summary={plainSummary(opportunity.title,opportunity.buyer)} needs={needs} contactText={contactText} beforeBid={beforeBid}/>
+ <div className="panel"><div className="panel-title">Key project information</div><div className="detail-grid"><div><span>Buyer / agency</span><strong>{opportunity.buyer}</strong></div><div><span>Reference</span><strong>{opportunity.reference??'—'}</strong></div><div><span>Market</span><strong>Sarawak, Malaysia</strong></div><div><span>Posted</span><strong>{opportunity.posted_date??'—'}</strong></div><div><span>Closing</span><strong>{opportunity.closing_date??'—'}</strong></div><div><span>Procurement type</span><strong>{opportunity.opportunity_type}</strong></div></div></div>
+ <div className="panel"><div className="panel-title">Official source</div><p className="meta">The original title, reference and official source are never translated or replaced. Always verify the legal scope and submission requirements on the source website.</p><a className="btn primary" href={opportunity.source_url} target="_blank" rel="noreferrer">Open official tender website ↗</a></div>
+ </section><aside className="detail-aside"><div className="panel sticky-panel"><div className="eyebrow">Take action</div><h2>Worth pursuing?</h2><p className="meta">Save the project into your private Pipeline, then track it from Interested to Quoted, Won or Lost.</p><OpportunityPipelineAction opportunityId={opportunity.id}/><hr/><a className="btn full" href={opportunity.source_url} target="_blank" rel="noreferrer">Official website ↗</a><Link className="btn full" href="/onboarding">Build company profile</Link></div></aside></div></main></>
 }
