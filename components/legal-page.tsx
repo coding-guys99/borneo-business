@@ -1,7 +1,9 @@
-import PublicHeader from '@/components/public-header'
-import SiteFooter from '@/components/site-footer'
+'use client'
+import {usePathname} from 'next/navigation'
+import FormalPolicyPage from '@/components/formal-policy-page'
 
 export type LegalSection={title:string;body:string[]}
-export default function LegalPage({eyebrow,title,intro,sections,note}:{eyebrow:string;title:string;intro:string;sections:LegalSection[];note?:string}){
- return <><PublicHeader/><main className="section policy-page"><div className="container policy-container"><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p className="lead policy-lead">{intro}</p>{note&&<div className="policy-notice">{note}</div>}<div className="policy-sections">{sections.map((s,i)=><section key={s.title}><div className="policy-number">{String(i+1).padStart(2,'0')}</div><div><h2>{s.title}</h2>{s.body.map((p,j)=><p key={j}>{p}</p>)}</div></section>)}</div><p className="meta policy-date">Last updated: 30 August 2026</p></div></main><SiteFooter/></>
+const routeMap:Record<string,'about'|'purpose'|'dataSources'|'dataAccuracy'|'translation'|'terms'|'privacy'|'disclaimer'|'thirdParty'>={
+ '/about':'about','/purpose':'purpose','/trust/data-sources':'dataSources','/trust/data-accuracy':'dataAccuracy','/trust/translation':'translation','/legal/terms':'terms','/legal/privacy':'privacy','/legal/disclaimer':'disclaimer','/legal/third-party':'thirdParty'
 }
+export default function LegalPage(_: {eyebrow:string;title:string;intro:string;sections:LegalSection[];note?:string}){const path=usePathname();return <FormalPolicyPage page={routeMap[path]??'about'}/>}
