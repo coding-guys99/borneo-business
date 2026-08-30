@@ -2,48 +2,24 @@
 
 import {useEffect,useState} from 'react'
 import {supabase} from '@/lib/browser-supabase'
+import {useI18n} from '@/components/i18n'
 
-const categories=[
-  ['function','Function issue / 功能问题'],
-  ['bug','Bug / 页面或功能错误'],
-  ['data','Wrong or outdated data / 资料错误或过期'],
-  ['translation','Translation issue / 翻译问题'],
-  ['billing','Subscription & billing / 订阅与付款'],
-  ['account','Account & login / 帐号与登入'],
-  ['suggestion','Suggestion / 建议'],
-  ['other','Other / 其他'],
-] as const
+const categoryLabels={
+ en:{function:'Function issue',bug:'Bug / page or feature error',data:'Wrong or outdated data',translation:'Translation issue',billing:'Subscription & billing',account:'Account & login',suggestion:'Suggestion',other:'Other'},
+ zh:{function:'功能问题',bug:'Bug／页面或功能错误',data:'资料错误或过期',translation:'翻译问题',billing:'订阅与付款',account:'帐号与登录',suggestion:'建议',other:'其他'},
+ ms:{function:'Masalah fungsi',bug:'Bug / ralat halaman atau fungsi',data:'Data salah atau lapuk',translation:'Masalah terjemahan',billing:'Langganan & bil',account:'Akaun & log masuk',suggestion:'Cadangan',other:'Lain-lain'}
+} as const
+const categoryKeys=['function','bug','data','translation','billing','account','suggestion','other'] as const
+const copy={
+ en:{title:'How can we help?',sub:'Report a problem, incorrect information, account issue or suggestion. Choose the closest category so it can be reviewed properly.',type:'Issue type',subject:'Subject',subjectPh:'Briefly describe the issue',description:'Description',descriptionPh:'What happened? What did you expect to happen?',email:'Email',optional:'optional',page:'Related page',submit:'Submit report',submitting:'Submitting…',success:'Submitted. Thank you — your report has been recorded.',unable:'Unable to submit',before:'Before reporting',note1:'For tender deadlines, eligibility, submission instructions and legal requirements, always verify the official procurement notice first.',note2:'If Borneo Business shows different information, choose Wrong or outdated data so we can review the source record.'},
+ zh:{title:'需要什么帮助？',sub:'你可以回报功能问题、资料错误、帐号问题或建议。请选择最接近的问题类型，方便我们处理。',type:'问题类型',subject:'标题',subjectPh:'简短说明问题',description:'问题说明',descriptionPh:'发生了什么？你原本预期应该怎样？',email:'邮箱',optional:'选填',page:'相关页面',submit:'提交回报',submitting:'正在提交…',success:'已提交，谢谢。我们已经记录你的回报。',unable:'无法提交',before:'提交前先确认',note1:'如果问题涉及标案截止日期、资格、提交方式或法律要求，请先以官方采购公告为准。',note2:'如果 Borneo Business 显示的资料与官方不同，请选择“资料错误或过期”，方便我们核对来源。'},
+ ms:{title:'Bagaimana kami boleh membantu?',sub:'Laporkan masalah fungsi, data yang salah, isu akaun atau cadangan. Pilih kategori yang paling sesuai supaya ia boleh disemak dengan betul.',type:'Jenis isu',subject:'Tajuk',subjectPh:'Terangkan isu secara ringkas',description:'Penerangan',descriptionPh:'Apa yang berlaku? Apa yang anda jangka akan berlaku?',email:'E-mel',optional:'pilihan',page:'Halaman berkaitan',submit:'Hantar laporan',submitting:'Menghantar…',success:'Telah dihantar. Terima kasih — laporan anda telah direkodkan.',unable:'Tidak dapat dihantar',before:'Sebelum melaporkan',note1:'Untuk tarikh tutup tender, kelayakan, arahan penghantaran dan keperluan undang-undang, sentiasa semak notis perolehan rasmi dahulu.',note2:'Jika maklumat Borneo Business berbeza, pilih Data salah atau lapuk supaya kami boleh menyemak rekod sumber.'}
+} as const
 
 export default function SupportPage(){
-  const [category,setCategory]=useState('function')
-  const [subject,setSubject]=useState('')
-  const [description,setDescription]=useState('')
-  const [email,setEmail]=useState('')
-  const [pageUrl,setPageUrl]=useState('')
-  const [busy,setBusy]=useState(false)
-  const [message,setMessage]=useState('')
-
+  const {lang}=useI18n();const c=copy[lang];const labels=categoryLabels[lang]
+  const [category,setCategory]=useState('function');const [subject,setSubject]=useState('');const [description,setDescription]=useState('');const [email,setEmail]=useState('');const [pageUrl,setPageUrl]=useState('');const [busy,setBusy]=useState(false);const [message,setMessage]=useState('')
   useEffect(()=>{setPageUrl(document.referrer||window.location.href);supabase.auth.getUser().then(({data})=>{if(data.user?.email)setEmail(data.user.email)})},[])
-
-  async function submit(e:React.FormEvent){
-    e.preventDefault();setBusy(true);setMessage('')
-    const {data:{user}}=await supabase.auth.getUser()
-    const {error}=await supabase.from('support_requests').insert({user_id:user?.id??null,category,subject:subject.trim(),description:description.trim(),page_url:pageUrl.trim()||null,email:email.trim()||null,status:'submitted'})
-    if(error)setMessage(`Unable to submit: ${error.message}`)
-    else{setMessage('Submitted. Thank you — your report has been recorded.');setSubject('');setDescription('')}
-    setBusy(false)
-  }
-
-  return <main className="section"><div className="container support-layout">
-    <section><div className="eyebrow">SUPPORT</div><h1 className="page-title">How can we help?</h1><p className="sub">Report a problem, incorrect information, account issue or suggestion. Choose the closest category so it can be reviewed properly.</p>
-      <form className="panel support-form" onSubmit={submit}>
-        <label>Issue type<select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(([v,l])=><option value={v} key={v}>{l}</option>)}</select></label>
-        <label>Subject<input required minLength={3} maxLength={160} value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Briefly describe the issue"/></label>
-        <label>Description<textarea required minLength={5} maxLength={5000} rows={7} value={description} onChange={e=>setDescription(e.target.value)} placeholder="What happened? What did you expect to happen?"/></label>
-        <div className="support-two"><label>Email <span>optional</span><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com"/></label><label>Related page <span>optional</span><input value={pageUrl} onChange={e=>setPageUrl(e.target.value)} placeholder="https://..."/></label></div>
-        <div className="support-submit"><button className="btn primary" disabled={busy}>{busy?'Submitting…':'Submit report'}</button>{message&&<span className="meta">{message}</span>}</div>
-      </form>
-    </section>
-    <aside><div className="panel support-side"><div className="panel-title">Before reporting</div><p>For tender deadlines, eligibility, submission instructions and legal requirements, always verify the official procurement notice first.</p><p>If Borneo Business shows different information, choose <strong>Wrong or outdated data</strong> so we can review the source record.</p></div></aside>
-  </div></main>
+  async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setMessage('');const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('support_requests').insert({user_id:user?.id??null,category,subject:subject.trim(),description:description.trim(),page_url:pageUrl.trim()||null,email:email.trim()||null,status:'submitted'});if(error)setMessage(`${c.unable}: ${error.message}`);else{setMessage(c.success);setSubject('');setDescription('')}setBusy(false)}
+  return <main className="section"><div className="container support-layout"><section><div className="eyebrow">SUPPORT</div><h1 className="page-title">{c.title}</h1><p className="sub">{c.sub}</p><form className="panel support-form" onSubmit={submit}><label>{c.type}<select value={category} onChange={e=>setCategory(e.target.value)}>{categoryKeys.map(v=><option value={v} key={v}>{labels[v]}</option>)}</select></label><label>{c.subject}<input required minLength={3} maxLength={160} value={subject} onChange={e=>setSubject(e.target.value)} placeholder={c.subjectPh}/></label><label>{c.description}<textarea required minLength={5} maxLength={5000} rows={7} value={description} onChange={e=>setDescription(e.target.value)} placeholder={c.descriptionPh}/></label><div className="support-two"><label>{c.email} <span>{c.optional}</span><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com"/></label><label>{c.page} <span>{c.optional}</span><input value={pageUrl} onChange={e=>setPageUrl(e.target.value)} placeholder="https://..."/></label></div><div className="support-submit"><button className="btn primary" disabled={busy}>{busy?c.submitting:c.submit}</button>{message&&<span className="meta">{message}</span>}</div></form></section><aside><div className="panel support-side"><div className="panel-title">{c.before}</div><p>{c.note1}</p><p>{c.note2}</p></div></aside></div></main>
 }
