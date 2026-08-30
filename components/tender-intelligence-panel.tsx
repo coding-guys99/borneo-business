@@ -1,7 +1,8 @@
+'use client'
+
+import {useI18n} from '@/components/i18n'
 import type {TenderIntelligenceV1} from '@/lib/tender-intelligence'
 import styles from './tender-intelligence-panel.module.css'
-
-type Lang='en'|'zh'|'ms'
 
 const copy={
  en:{eyebrow:'SUBSCRIBED INTELLIGENCE',title:'30-Second Tender Brief',subtitle:'A structured reading of the indexed official tender data. Official facts remain separate from platform-derived signals.',coverage:'Extraction',what:'What',where:'Where',buyer:'Buyer',eligibility:'Eligibility',mandatory:'Mandatory',deadline:'Deadline',checklist:'Real Checklist',confirmed:'Confirmed from official source',actions:'Actions detected',verify:'Needs verification',flags:'Red Flags',extracted:'Extracted Tender Requirements',fees:'Fees',submission:'Submission',documents:'Documents',contacts:'Contacts',none:'Not clearly stated in indexed structured fields',official:'Official',derived:'Platform derived',complete:'Complete',partial:'Partial',review:'Needs review',trust:'No requirement is invented. Missing or unclear items are marked for verification against the official notice.'},
@@ -12,8 +13,8 @@ const copy={
 function coverageLabel(value:TenderIntelligenceV1['coverage'],c:(typeof copy)['en']){return value==='complete'?c.complete:value==='partial'?c.partial:c.review}
 function join(values:string[],fallback:string){return values.length?values.join(' · '):fallback}
 
-export default function TenderIntelligencePanel({data,lang='en'}:{data:TenderIntelligenceV1;lang?:Lang}){
- const c=copy[lang] as typeof copy.en
+export default function TenderIntelligencePanel({data}:{data:TenderIntelligenceV1}){
+ const {lang}=useI18n();const c=copy[lang] as typeof copy.en
  const groups=[
   [c.eligibility,data.extracted.eligibility],
   [c.fees,data.extracted.fees],
