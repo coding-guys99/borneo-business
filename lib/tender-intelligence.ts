@@ -6,13 +6,16 @@ export type IntelligenceItem={label:string;value:string;evidence:IntelligenceEvi
 export type ChecklistItem={text:string;evidence:'official'|'verify';sourceLabel?:string}
 export type RedFlag={severity:'critical'|'warning'|'info';code:string;title:string;detail:string;evidence:'official'|'platform-derived'}
 export type ExtractionCoverage='complete'|'partial'|'needs-review'
+export type PursuitGate='closed'|'urgent'|'verify-first'|'review-ready'
 
 export type TenderIntelligenceV1={
-  coverage:ExtractionCoverage
-  brief:{scope:string|null;location:string|null;buyer:string;eligibility:string[];mandatory:string[];deadline:string|null}
-  extracted:{eligibility:IntelligenceItem[];mandatoryActions:IntelligenceItem[];fees:IntelligenceItem[];submission:IntelligenceItem[];documents:IntelligenceItem[];contacts:IntelligenceItem[]}
-  checklist:{confirmed:ChecklistItem[];actions:ChecklistItem[];verify:ChecklistItem[]}
-  redFlags:RedFlag[]
+ coverage:ExtractionCoverage
+ gate:PursuitGate
+ nextAction:string
+ brief:{scope:string|null;location:string|null;buyer:string;eligibility:string[];mandatory:string[];deadline:string|null}
+ extracted:{eligibility:IntelligenceItem[];mandatoryActions:IntelligenceItem[];fees:IntelligenceItem[];submission:IntelligenceItem[];documents:IntelligenceItem[];contacts:IntelligenceItem[]}
+ checklist:{confirmed:ChecklistItem[];actions:ChecklistItem[];verify:ChecklistItem[]}
+ redFlags:RedFlag[]
 }
 
 const P={
@@ -48,7 +51,9 @@ export function extractTenderIntelligence(opportunity:Opportunity,snapshot:Offic
  const briefingItems=items(fields,P.briefing)
  const mandatoryActions=uniq([...siteItems,...briefingItems].filter(x=>hasMandatoryLanguage(`${x.label} ${x.value}`)||P.site.test(`${x.label} ${x.value}`)||P.briefing.test(`${x.label} ${x.value}`)),x=>`${x.label}|${x.value}`)
 
- const scope=firstValue(fields,P.scope)||snapshot.content[0]?.trim()||opportunity.title||null
+ // Never use the tender title as a fake scope summary. Scope must come from an
+ // official scope/description field or separately extracted original content.
+ const scope=firstValue(fields,P.scope)||snapshot.content[0]?.trim()||null
  const location=firstValue(fields,P.location)
  const deadline=opportunity.closing_date||firstValue(fields,/closing\s*date|tarikh\s*tutup|deadline/i)
 
@@ -57,6 +62,7 @@ export function extractTenderIntelligence(opportunity:Opportunity,snapshot:Offic
  for(const x of documents.slice(0,6))confirmed.push({text:`${x.label}: ${x.value}`,evidence:'official',sourceLabel:x.sourceLabel})
  const actions:ChecklistItem[]=mandatoryActions.slice(0,5).map(x=>({text:`${x.label}: ${x.value}`,evidence:'official',sourceLabel:x.sourceLabel}))
  const verify:ChecklistItem[]=[]
+ if(!scope)verify.push({text:'The indexed official fields do not clearly state a separate work scope / description.',evidence:'verify'})
  if(!eligibility.length)verify.push({text:'Contractor / supplier eligibility is not clearly structured in the indexed notice.',evidence:'verify'})
  if(!documents.length)verify.push({text:'Required submission documents are not clearly structured in the indexed notice.',evidence:'verify'})
  if(!submission.length)verify.push({text:'Submission method, address or closing-time details need verification in the official notice.',evidence:'verify'})
@@ -67,7 +73,6 @@ export function extractTenderIntelligence(opportunity:Opportunity,snapshot:Offic
  if(deadlineDays!==null&&deadlineDays<0)redFlags.push({severity:'info',code:'closed',title:'Tender closing date has passed',detail:`Closing date: ${opportunity.closing_date}`,evidence:'official'})
  else if(deadlineDays!==null&&deadlineDays<=2)redFlags.push({severity:'critical',code:'deadline-critical',title:'Very little time remains',detail:`Closing in ${deadlineDays} day${deadlineDays===1?'':'s'} (${opportunity.closing_date}).`,evidence:'platform-derived'})
  else if(deadlineDays!==null&&deadlineDays<=7)redFlags.push({severity:'warning',code:'deadline-soon',title:'Closing soon',detail:`Closing in ${deadlineDays} days (${opportunity.closing_date}).`,evidence:'platform-derived'})
-
  for(const x of siteItems){const txt=`${x.label} ${x.value}`;if(hasMandatoryLanguage(txt))redFlags.push({severity:'critical',code:'mandatory-site-visit',title:'Mandatory site visit detected',detail:`${x.label}: ${x.value}`,evidence:'official'})}
  for(const x of briefingItems){const txt=`${x.label} ${x.value}`;if(hasMandatoryLanguage(txt))redFlags.push({severity:'critical',code:'mandatory-briefing',title:'Mandatory briefing detected',detail:`${x.label}: ${x.value}`,evidence:'official'})}
  if(eligibility.length)redFlags.push({severity:'info',code:'eligibility-present',title:'Registration / eligibility requirements detected',detail:concise(eligibility.map(x=>`${x.label}: ${x.value}`),2).join(' · '),evidence:'official'})
@@ -76,19 +81,9 @@ export function extractTenderIntelligence(opportunity:Opportunity,snapshot:Offic
  const strongSignals=[Boolean(scope),Boolean(deadline),eligibility.length>0,submission.length>0,documents.length>0]
  const signalCount=strongSignals.filter(Boolean).length
  const coverage:ExtractionCoverage=signalCount>=4?'complete':signalCount>=2?'partial':'needs-review'
+ const hasCritical=redFlags.some(x=>x.severity==='critical')
+ const gate:PursuitGate=deadlineDays!==null&&deadlineDays<0?'closed':hasCritical?'urgent':(!eligibility.length||!submission.length||!scope)?'verify-first':'review-ready'
+ const nextAction=gate==='closed'?'This tender is closed. Review it only for market or award history.':gate==='urgent'?'Resolve the urgent requirement before spending more time preparing the bid.':gate==='verify-first'?'Verify the missing eligibility, scope or submission details in the official notice before committing bid resources.':'Core tender information is available. Review the confirmed requirements and prepare the submission checklist.'
 
- return {
-  coverage,
-  brief:{
-   scope:scope?norm(scope).slice(0,420):null,
-   location:location?norm(location).slice(0,180):null,
-   buyer:opportunity.buyer,
-   eligibility:concise(eligibility.map(x=>`${x.label}: ${x.value}`),4),
-   mandatory:concise(mandatoryActions.map(x=>`${x.label}: ${x.value}`),3),
-   deadline:deadline?norm(deadline):null,
-  },
-  extracted:{eligibility,mandatoryActions,fees,submission,documents,contacts},
-  checklist:{confirmed:uniq(confirmed,x=>x.text),actions:uniq(actions,x=>x.text),verify:uniq(verify,x=>x.text)},
-  redFlags:uniq(redFlags,x=>x.code+'|'+x.detail).slice(0,8),
- }
+ return {coverage,gate,nextAction,brief:{scope:scope?norm(scope).slice(0,420):null,location:location?norm(location).slice(0,180):null,buyer:opportunity.buyer,eligibility:concise(eligibility.map(x=>`${x.label}: ${x.value}`),4),mandatory:concise(mandatoryActions.map(x=>`${x.label}: ${x.value}`),3),deadline:deadline?norm(deadline):null},extracted:{eligibility,mandatoryActions,fees,submission,documents,contacts},checklist:{confirmed:uniq(confirmed,x=>x.text),actions:uniq(actions,x=>x.text),verify:uniq(verify,x=>x.text)},redFlags:uniq(redFlags,x=>x.code+'|'+x.detail).slice(0,8)}
 }
