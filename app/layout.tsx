@@ -1,5 +1,6 @@
 import './globals.css'
 import './mobile-enhancements.css'
+import './intelligence.css'
 import { LanguageProvider } from '@/components/i18n'
 import PublicHeader from '@/components/public-header'
 import SiteFooter from '@/components/site-footer'
