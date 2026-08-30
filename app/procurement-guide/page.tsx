@@ -1,25 +1,18 @@
+'use client'
+
 import Link from 'next/link'
+import {useI18n} from '@/components/i18n'
 
-const terms=[
-  {term:'CIDB',name:'Construction Industry Development Board Malaysia',zh:'马来西亚建筑工业发展局',text:'建筑工程相关项目常见的注册与承包商资格机构。若标案写明 CIDB 等级或类别，请以官方招标文件要求为准。'},
-  {term:'UPKJ',name:'Unit Pendaftaran Kontraktor dan Juruperunding',zh:'砂拉越承包商与顾问注册单位',text:'砂拉越州政府采购常见的承包商、供应商与顾问注册体系。部分州政府项目会指定 UPKJ 类别、等级或注册条件。'},
-  {term:'MOF',name:'Ministry of Finance Malaysia',zh:'马来西亚财政部',text:'部分联邦政府采购会要求供应商具备财政部注册或相关代码。是否需要，以该项目官方文件为准。'},
-  {term:'JKR',name:'Jabatan Kerja Raya / Public Works Department',zh:'公共工程局',text:'负责大量公共工程与基础设施项目。砂拉越项目中常见 JKR / Public Works Department 作为采购或项目机构。'},
-  {term:'RFQ',name:'Request for Quotation',zh:'询价',text:'通常用于要求供应商提交报价及基本资料。流程一般比正式 Tender 简化，但仍要按公告要求提交。'},
-  {term:'RFP',name:'Request for Proposal',zh:'征求建议书',text:'采购方希望供应商提交较完整的技术方案、执行方法与商业报价，不只是价格。'},
-  {term:'Tender',name:'Formal Tender',zh:'正式招标',text:'较正式的采购程序，通常包含资格条件、文件要求、截止时间及指定提交方式。'},
-  {term:'Site Visit',name:'Site Visit / Tender Briefing',zh:'现场勘查／投标说明会',text:'有些项目规定必须参加。若标示 Mandatory / Compulsory，没有参加可能失去投标资格。'},
-  {term:'LOA',name:'Letter of Award',zh:'中标通知书',text:'采购方确认授予项目或合约的正式文件之一。实际法律效力与后续要求应以正式文件内容为准。'},
-  {term:'Bumiputera',name:'Bumiputera Status / Requirement',zh:'土著资格要求',text:'部分采购会限制或优先特定 Bumiputera 资格。平台只显示公开文件明确写出的要求，不自行推断。'},
-]
+const base=[
+ ['CIDB','Construction Industry Development Board Malaysia'],['UPKJ','Unit Pendaftaran Kontraktor dan Juruperunding'],['MOF','Ministry of Finance Malaysia'],['JKR','Jabatan Kerja Raya / Public Works Department'],['RFQ','Request for Quotation'],['RFP','Request for Proposal'],['Tender','Formal Tender'],['Site Visit','Site Visit / Tender Briefing'],['LOA','Letter of Award'],['Bumiputera','Bumiputera Status / Requirement']
+] as const
+const text={
+ en:{title:'Tender & procurement terms',lead:'A simple reference for common organizations, procurement methods and tender terms. On opportunity pages, the small information button explains abbreviations in context.',notice:'This guide helps with understanding only. Eligibility, registration and submission requirements always come from the latest official tender documents.',back:'Back to opportunities',items:[
+ ['Malaysia construction industry regulator. Construction tenders may specify CIDB registration, grade or category.'],['Sarawak contractor and consultant registration system often referenced in state procurement.'],['Malaysia Ministry of Finance. Some federal procurement requires MOF supplier registration or codes.'],['Public Works Department / Jabatan Kerja Raya, a common public works buyer and project agency.'],['A request for suppliers to submit a quotation and basic supporting information.'],['A request for a fuller technical and commercial proposal, not only a price.'],['A formal procurement process with eligibility, documentation, deadlines and a defined submission method.'],['A site visit or briefing. If marked mandatory or compulsory, attendance may affect eligibility.'],['A formal letter notifying that a project or contract has been awarded.'],['A Bumiputera status or participation requirement when explicitly stated by the procuring agency.']]},
+ zh:{title:'投标与采购术语指南',lead:'这里简单解释常见机构、采购方式和投标术语。在商机页面遇到简称时，也可以直接点小 i 按钮查看当页说明。',notice:'这份指南只是帮助理解，不是资格认定。能不能投、需要什么注册和文件，一律以采购方最新官方文件为准。',back:'返回商机',items:[
+ ['马来西亚建筑工业发展局。建筑项目可能会指定 CIDB 注册、等级或类别。'],['砂拉越承包商与顾问注册体系，州政府采购中经常出现。'],['马来西亚财政部。部分联邦政府采购会要求 MOF 供应商注册或相关代码。'],['公共工程局，常见于公共工程与基础设施项目。'],['询价，通常要求供应商提交报价和基本资料。'],['征求建议书，通常要求较完整的技术方案与商业报价。'],['正式招标程序，通常包含资格、文件、截止时间和指定提交方式。'],['现场勘查／投标说明会。若标示必须参加，缺席可能影响资格。'],['中标通知书，采购方正式通知项目或合约授予结果的文件之一。'],['当采购方明确写出时，可能存在 Bumiputera 资格或参与要求。']]},
+ ms:{title:'Panduan istilah tender & perolehan',lead:'Rujukan ringkas untuk organisasi, kaedah perolehan dan istilah tender biasa. Pada halaman peluang, butang i kecil juga menerangkan singkatan mengikut konteks.',notice:'Panduan ini hanya membantu pemahaman. Kelayakan, pendaftaran dan syarat penghantaran sentiasa ditentukan oleh dokumen tender rasmi terkini.',back:'Kembali ke peluang',items:[
+ ['Badan kawal selia industri pembinaan Malaysia. Tender pembinaan mungkin menetapkan pendaftaran, gred atau kategori CIDB.'],['Sistem pendaftaran kontraktor dan perunding Sarawak yang kerap dirujuk dalam perolehan negeri.'],['Kementerian Kewangan Malaysia. Sesetengah perolehan persekutuan memerlukan pendaftaran atau kod pembekal MOF.'],['Jabatan Kerja Raya / Public Works Department, agensi biasa untuk projek kerja awam dan infrastruktur.'],['Permintaan kepada pembekal untuk mengemukakan sebut harga dan maklumat asas.'],['Permintaan untuk cadangan teknikal dan komersial yang lebih lengkap, bukan harga sahaja.'],['Proses perolehan rasmi dengan syarat kelayakan, dokumen, tarikh tutup dan kaedah penghantaran.'],['Lawatan tapak atau taklimat tender. Jika diwajibkan, kehadiran boleh mempengaruhi kelayakan.'],['Surat rasmi yang memaklumkan sesuatu projek atau kontrak telah dianugerahkan.'],['Syarat status atau penyertaan Bumiputera apabila dinyatakan dengan jelas oleh agensi perolehan.']]}
+} as const
 
-export default function ProcurementGuidePage(){
-  return <main className="section"><div className="container policy-container">
-    <div className="eyebrow">PROCUREMENT GUIDE</div>
-    <h1>投标与采购术语指南</h1>
-    <p className="sub policy-lead">这里解释 Borneo Business 常见的机构简称、采购方式和投标术语。我们会在项目页面保留简称，同时在第一次出现时提供全名和简单说明。</p>
-    <div className="policy-notice"><strong>重要：</strong>这是一份帮助理解的指南，不是法律或资格认定。真正能不能投、需要什么注册和文件，一律以采购方最新官方招标文件为准。</div>
-    <div className="term-directory">{terms.map(x=><article className="term-entry" id={x.term.toLowerCase()} key={x.term}><div className="term-code">{x.term}</div><div><h2>{x.term} <span>({x.name})</span></h2><strong className="term-zh">{x.zh}</strong><p>{x.text}</p></div></article>)}</div>
-    <div className="guide-bottom"><Link className="btn" href="/opportunities">返回商机</Link></div>
-  </div></main>
-}
+export default function ProcurementGuidePage(){const {lang}=useI18n();const c=text[lang];return <main className="section"><div className="container policy-container"><div className="eyebrow">PROCUREMENT GUIDE</div><h1>{c.title}</h1><p className="sub policy-lead">{c.lead}</p><div className="policy-notice"><strong>{lang==='zh'?'重要：':lang==='ms'?'Penting:':'Important:'}</strong> {c.notice}</div><div className="term-directory">{base.map((x,i)=><article className="term-entry" id={x[0].toLowerCase().replace(' ','-')} key={x[0]}><div className="term-code">{x[0]}</div><div><h2>{x[0]} <span>({x[1]})</span></h2><p>{c.items[i][0]}</p></div></article>)}</div><div className="guide-bottom"><Link className="btn" href="/opportunities">{c.back}</Link></div></div></main>}
