@@ -15,7 +15,7 @@ export type Opportunity = {
 
 export type OpportunityAward = {
   id: number
-  opportunity_id: string
+  opportunity_id: string | null
   awarded_company: string
   awarded_value: number | null
   currency: string
@@ -23,6 +23,19 @@ export type OpportunityAward = {
   award_reference: string | null
   source_url: string | null
   source_type: string
+  award_company_id: string | null
+  tender_reference: string | null
+  tender_title: string | null
+  procurement_type: string
+  buyer: string | null
+  award_companies?: { slug: string; canonical_name: string } | null
+}
+
+export type AwardCompany = {
+  id: string
+  canonical_name: string
+  slug: string
+  created_at: string
 }
 
 export type PlatformMetrics = {
@@ -51,7 +64,21 @@ export async function getOpportunityById(id: string): Promise<Opportunity | null
 }
 
 export async function getOpportunityAwards(opportunityId: string): Promise<OpportunityAward[]> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=*&opportunity_id=eq.${encodeURIComponent(opportunityId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
+  const select='*,award_companies(slug,canonical_name)'
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=${encodeURIComponent(select)}&opportunity_id=eq.${encodeURIComponent(opportunityId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function getAwardCompanyBySlug(slug: string): Promise<AwardCompany | null> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/award_companies?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers, cache: 'no-store' })
+  if (!res.ok) return null
+  const rows: AwardCompany[] = await res.json()
+  return rows[0] ?? null
+}
+
+export async function getAwardHistoryByCompany(companyId: string): Promise<OpportunityAward[]> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=*&award_company_id=eq.${encodeURIComponent(companyId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
   if (!res.ok) return []
   return res.json()
 }
