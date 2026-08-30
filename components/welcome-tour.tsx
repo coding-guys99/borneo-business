@@ -19,16 +19,16 @@ const slidesByLang={
   {icon:'3',title:'Save serious leads',body:'Move the opportunities you care about into Pipeline.',cta:'Open Pipeline',href:'/pipeline'},
   {icon:'4',title:'Record outcomes',body:'Track Contacted, Quoted, Won or Lost so the platform reflects real business activity.',cta:'Open Business Radar',href:'/dashboard'}]},
  zh:{public:[
-  {icon:'👋',title:'歡迎使用 Borneo Business',body:'在砂拉越找到真實公開商機，先用簡單方式了解專案，再進入官方標案網站確認。'},
-  {icon:'🔎',title:'快速看懂一個標案',body:'每個商機都有簡化專案簡介、採購單位、編號、截止日期、可能需求與官方來源。'},
-  {icon:'🏢',title:'建立公司資料',body:'告訴平台你的公司能做什麼。公司資料可以讓買方找到你，也會改善商機配對。'},
-  {icon:'🤝',title:'缺能力就找合作夥伴',body:'如果專案需要你沒有的能力，可以透過公司網絡找適合一起合作的企業。'},
-  {icon:'📈',title:'把商機追到成交',body:'把值得跟進的標案存進 Pipeline，再追蹤到 Contacted、Quoted、Won 或 Lost。',cta:'瀏覽砂拉越商機',href:'/opportunities'}],member:[
-  {icon:'👋',title:'歡迎進入你的商機雷達',body:'Radar 會依照公司資料，優先顯示適合你的砂拉越商機。'},
-  {icon:'1',title:'完成公司資料',body:'加入公司簡介、能力與可服務市場。',cta:'開啟公司資料',href:'/profile'},
-  {icon:'2',title:'查看配對商機',body:'先看懂專案內容，再決定要不要追。',cta:'瀏覽商機',href:'/opportunities'},
-  {icon:'3',title:'儲存真正想追的案子',body:'把有興趣的商機加入 Pipeline。',cta:'開啟 Pipeline',href:'/pipeline'},
-  {icon:'4',title:'記錄結果',body:'追蹤 Contacted、Quoted、Won 或 Lost，讓平台累積真實商業結果。',cta:'開啟商機雷達',href:'/dashboard'}]},
+  {icon:'👋',title:'欢迎使用 Borneo Business',body:'在砂拉越找到真实公开商机，先用简单方式了解项目，再进入官方标案网站确认。'},
+  {icon:'🔎',title:'快速看懂一个标案',body:'每个商机都有简化项目简介、采购单位、编号、截止日期、可能需求与官方来源。'},
+  {icon:'🏢',title:'建立公司资料',body:'告诉平台你的公司能做什么。公司资料可以让买方找到你，也会改善商机匹配。'},
+  {icon:'🤝',title:'缺能力就找合作伙伴',body:'如果项目需要你没有的能力，可以通过公司网络找适合一起合作的企业。'},
+  {icon:'📈',title:'把商机追到成交',body:'把值得跟进的标案存进 Pipeline，再追踪到 Contacted、Quoted、Won 或 Lost。',cta:'浏览砂拉越商机',href:'/opportunities'}],member:[
+  {icon:'👋',title:'欢迎进入你的商机雷达',body:'Radar 会依照公司资料，优先显示适合你的砂拉越商机。'},
+  {icon:'1',title:'完成公司资料',body:'加入公司简介、能力与可服务市场。',cta:'打开公司资料',href:'/profile'},
+  {icon:'2',title:'查看匹配商机',body:'先看懂项目内容，再决定要不要跟进。',cta:'浏览商机',href:'/opportunities'},
+  {icon:'3',title:'保存真正想跟进的项目',body:'把有兴趣的商机加入 Pipeline。',cta:'打开 Pipeline',href:'/pipeline'},
+  {icon:'4',title:'记录结果',body:'追踪 Contacted、Quoted、Won 或 Lost，让平台累积真实商业结果。',cta:'打开商机雷达',href:'/dashboard'}]},
  ms:{public:[
   {icon:'👋',title:'Selamat datang ke Borneo Business',body:'Cari peluang perniagaan sebenar di Sarawak, fahami projek secara ringkas dan semak notis perolehan rasmi apabila bersedia.'},
   {icon:'🔎',title:'Fahami projek dengan cepat',body:'Setiap peluang mempunyai ringkasan, agensi, rujukan, tarikh tutup, keperluan yang mungkin dan pautan rasmi.'},
