@@ -23,7 +23,7 @@ export default function ContextInfoDrawer({terms,sourceUrl,reference}:Props){
           <div><div className="eyebrow">INFORMATION</div><h2>Project information</h2><p>Quick reference for names, abbreviations and the original public document.</p></div>
           <button className="context-drawer-close" type="button" aria-label="Close" onClick={()=>setOpen(false)}>×</button>
         </div>
-        {sourceUrl&&<section className="context-document-section"><div><span className="context-section-label">OFFICIAL DOCUMENT</span><strong>Original public source</strong><p>Open or download the official source copy without searching through the agency website again.</p></div><OfficialPdfButton sourceUrl={sourceUrl} reference={reference}/></section>}
+        {sourceUrl&&<section className="context-document-section"><div><span className="context-section-label">OFFICIAL DOCUMENT</span><strong>Original public source</strong><p>Open or download the official source copy without searching through the agency website again.</p></div><OfficialPdfButton sourceUrl={sourceUrl} reference={reference??null}/></section>}
         {terms.length>0&&<div className="context-term-list">
           {terms.map(term=><article className="context-term" key={term.code}>
             <div className="context-term-code">{term.code}</div>
