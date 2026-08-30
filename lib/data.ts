@@ -13,6 +13,18 @@ export type Opportunity = {
   industry: string | null
 }
 
+export type OpportunityAward = {
+  id: number
+  opportunity_id: string
+  awarded_company: string
+  awarded_value: number | null
+  currency: string
+  award_date: string | null
+  award_reference: string | null
+  source_url: string | null
+  source_type: string
+}
+
 export type PlatformMetrics = {
   opportunities_tracked: number
   companies_indexed: number
@@ -36,6 +48,12 @@ export async function getOpportunityById(id: string): Promise<Opportunity | null
   if (!res.ok) return null
   const rows: Opportunity[] = await res.json()
   return rows[0] ?? null
+}
+
+export async function getOpportunityAwards(opportunityId: string): Promise<OpportunityAward[]> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=*&opportunity_id=eq.${encodeURIComponent(opportunityId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
+  if (!res.ok) return []
+  return res.json()
 }
 
 export async function getPlatformMetrics(): Promise<PlatformMetrics> {
