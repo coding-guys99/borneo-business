@@ -1,0 +1,7 @@
+import LegalPage from '@/components/legal-page'
+export default function Page(){return <LegalPage eyebrow="Company" title="About Borneo Business" intro="Borneo Business is an independent business intelligence platform built to make commercial activity across Borneo easier to discover, understand and act on." sections={[
+ {title:'What we do',body:['We organize publicly available opportunity and market information into a clearer business view. Our product is designed to help companies discover procurement opportunities, understand buyers and organizations, identify potential partners and track commercial outcomes.']},
+ {title:'Where we operate',body:['Our current public opportunity coverage is focused on Sarawak, Malaysia. Coverage may expand over time to other Borneo markets, including Sabah, Brunei and Kalimantan, as reliable sources and product capabilities are added.']},
+ {title:'What we are not',body:['Borneo Business is not a government agency, procurement authority, tender issuer, law firm or financial adviser. We do not issue public tenders and we do not replace the official procurement process.']},
+ {title:'Our standard',body:['We aim to distinguish official-source facts from platform-generated summaries, classifications, translations and analytical signals. Where a decision depends on eligibility, deadlines, fees or submission rules, the original issuing source should always be checked.']}
+ ]}/>}
