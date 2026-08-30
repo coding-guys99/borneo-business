@@ -73,26 +73,33 @@ try {
   const firstOpportunity = page.locator('.op-main a[href^="/opportunities/"]').first()
   ok(await firstOpportunity.count(), 'No opportunity row available to open')
   const href = await firstOpportunity.getAttribute('href')
+  const listingTitle = (await firstOpportunity.innerText()).trim()
   ok(href && /^\/opportunities\/[^/]+$/.test(href), `Invalid opportunity href: ${href}`)
   const response = await page.goto(`${base}${href}`, { waitUntil: 'networkidle' })
   ok(response && response.status() < 500, `Opportunity detail returned ${response?.status()}`)
   ok(page.url().includes('/opportunities/'), 'Opportunity detail route did not load')
+  ok((await page.locator('.tender-title-block h1').innerText()).trim() === listingTitle, 'Tender title changed or was translated on detail page')
+  const detailText = await page.locator('.tender-detail-v2').innerText()
+  for (const label of ['完整标案信息','关键时间','资格条件','标案内容','标案简介','标案需准备什么','如何投标','来源与可信度']) {
+    ok(detailText.includes(label), `Tender detail missing localized section: ${label}`)
+  }
+  const firstFold = page.locator('.tender-fold').first()
+  ok(await firstFold.evaluate(el => el.hasAttribute('open')), 'Original tender content should be expanded by default')
+  const summaryFold = page.locator('.tender-fold').filter({hasText:'标案简介'}).first()
+  await summaryFold.locator('summary').click()
+  ok(await summaryFold.evaluate(el => el.hasAttribute('open')), 'Tender summary did not expand')
+  await summaryFold.locator('summary').click()
+  ok(!(await summaryFold.evaluate(el => el.hasAttribute('open'))), 'Tender summary did not collapse')
   const info = page.locator('.context-info-button:visible').first()
   if (await info.count()) {
     await info.click()
     const drawer=page.locator('.context-info-drawer.open').first()
     ok(await drawer.count(), 'Information drawer did not open')
+    ok((await drawer.innerText()).includes('术语与官方资料'), 'Information drawer fixed copy did not localize')
     await drawer.locator('.context-drawer-close').click()
     ok(!(await drawer.evaluate(el => el.classList.contains('open'))), 'Information drawer did not close')
   }
-  const disclosure = page.locator('.detail-disclosure:visible').first()
-  if (await disclosure.count()) {
-    await disclosure.locator('summary').click()
-    ok(await disclosure.evaluate(el => el.hasAttribute('open')), 'Tender disclosure did not expand')
-    await disclosure.locator('summary').click()
-    ok(!(await disclosure.evaluate(el => el.hasAttribute('open'))), 'Tender disclosure did not collapse')
-  }
-  console.log('PASS opportunity detail interactions')
+  console.log('PASS localized opportunity detail structure + interactions')
 
   for (const route of ['/dashboard', '/pipeline', '/network', '/profile', '/guide']) {
     await page.goto(`${base}${route}`, { waitUntil: 'networkidle' })
