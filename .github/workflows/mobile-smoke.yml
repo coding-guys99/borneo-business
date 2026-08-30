@@ -1,0 +1,30 @@
+name: Mobile Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  mobile-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install chromium --with-deps
+      - name: Start app
+        run: |
+          npm run start -- --hostname 127.0.0.1 > /tmp/borneo-business.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/borneo-business.log
+          exit 1
+      - name: Mobile click smoke test
+        run: node scripts/mobile-smoke.mjs
