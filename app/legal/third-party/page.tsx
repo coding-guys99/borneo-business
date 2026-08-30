@@ -1,0 +1,7 @@
+import LegalPage from '@/components/legal-page'
+export default function Page(){return <LegalPage eyebrow="Legal" title="Third-Party Services & Intellectual Property" intro="Borneo Business connects public information with our own software, organization and analysis. Third-party material remains subject to the rights and policies of its owners." sections={[
+ {title:'External websites',body:['Links to procurement portals, government websites, companies and other external services are provided for reference. Those websites are independently operated and Borneo Business does not control their content, availability, security or privacy practices.']},
+ {title:'Third-party infrastructure',body:['The service may use third-party hosting, database, authentication, software libraries and open-source components. Those services and components may be governed by their own terms and licences.']},
+ {title:'Source and trademark rights',body:['Government notices, organization names, company names, logos, trademarks and source documents remain the property of their respective owners where applicable. Their appearance on Borneo Business does not imply endorsement or partnership.']},
+ {title:'Borneo Business rights',body:['Borneo Business branding, interface design, original explanatory content, software, data organization, classifications and proprietary analytical outputs are protected to the extent available under applicable intellectual-property law and relevant licences.']}
+ ]}/>}
