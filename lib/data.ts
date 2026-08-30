@@ -31,62 +31,21 @@ export type OpportunityAward = {
   award_companies?: { slug: string; canonical_name: string } | null
 }
 
-export type AwardCompany = {
-  id: string
-  canonical_name: string
-  slug: string
-  created_at: string
-}
+export type AwardCompany = { id: string; canonical_name: string; slug: string; created_at: string }
+export type BuyerIntelligence = { id:number; slug:string; canonical_name:string; region:string; country:string; open_opportunities:number; total_opportunities:number; awards_published:number; unique_winners:number; latest_award_date:string|null; latest_posted_date:string|null; disclosed_award_value:number }
+export type PlatformMetrics = { opportunities_tracked:number; companies_indexed:number; verified_deals:number; verified_business_generated:number; currency:string }
 
-export type PlatformMetrics = {
-  opportunities_tracked: number
-  companies_indexed: number
-  verified_deals: number
-  verified_business_generated: number
-  currency: string
-}
+const SUPABASE_URL='https://edpdaxgphxrzvfjquzgp.supabase.co'
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_gZitOhTr8USGqEJFyBvOHQ_VsSM9T1O'
+const headers={apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${SUPABASE_PUBLISHABLE_KEY}`}
+async function rows<T>(path:string):Promise<T[]>{const r=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{headers,cache:'no-store'});return r.ok?r.json():[]}
 
-const SUPABASE_URL = 'https://edpdaxgphxrzvfjquzgp.supabase.co'
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_gZitOhTr8USGqEJFyBvOHQ_VsSM9T1O'
-const headers = { apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` }
-
-export async function getOpportunities(): Promise<Opportunity[]> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&order=posted_date.desc.nullslast,closing_date.desc.nullslast`, { headers, cache: 'no-store' })
-  if (!res.ok) return []
-  return res.json()
-}
-
-export async function getOpportunityById(id: string): Promise<Opportunity | null> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunities?select=*&id=eq.${encodeURIComponent(id)}&limit=1`, { headers, cache: 'no-store' })
-  if (!res.ok) return null
-  const rows: Opportunity[] = await res.json()
-  return rows[0] ?? null
-}
-
-export async function getOpportunityAwards(opportunityId: string): Promise<OpportunityAward[]> {
-  const select='*,award_companies(slug,canonical_name)'
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=${encodeURIComponent(select)}&opportunity_id=eq.${encodeURIComponent(opportunityId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
-  if (!res.ok) return []
-  return res.json()
-}
-
-export async function getAwardCompanyBySlug(slug: string): Promise<AwardCompany | null> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/award_companies?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`, { headers, cache: 'no-store' })
-  if (!res.ok) return null
-  const rows: AwardCompany[] = await res.json()
-  return rows[0] ?? null
-}
-
-export async function getAwardHistoryByCompany(companyId: string): Promise<OpportunityAward[]> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/opportunity_awards?select=*&award_company_id=eq.${encodeURIComponent(companyId)}&order=award_date.desc.nullslast,created_at.desc`, { headers, cache: 'no-store' })
-  if (!res.ok) return []
-  return res.json()
-}
-
-export async function getPlatformMetrics(): Promise<PlatformMetrics> {
-  const fallback = { opportunities_tracked: 0, companies_indexed: 0, verified_deals: 0, verified_business_generated: 0, currency: 'MYR' }
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/platform_metrics?select=*`, { headers, cache: 'no-store' })
-  if (!res.ok) return fallback
-  const rows = await res.json()
-  return rows[0] ?? fallback
-}
+export async function getOpportunities(){return rows<Opportunity>('opportunities?select=*&order=posted_date.desc.nullslast,closing_date.desc.nullslast')}
+export async function getOpportunityById(id:string){return (await rows<Opportunity>(`opportunities?select=*&id=eq.${encodeURIComponent(id)}&limit=1`))[0]??null}
+export async function getOpportunityAwards(id:string){const s='*,award_companies(slug,canonical_name)';return rows<OpportunityAward>(`opportunity_awards?select=${encodeURIComponent(s)}&opportunity_id=eq.${encodeURIComponent(id)}&order=award_date.desc.nullslast,created_at.desc`)}
+export async function getAwardCompanyBySlug(slug:string){return (await rows<AwardCompany>(`award_companies?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`))[0]??null}
+export async function getAwardHistoryByCompany(id:string){return rows<OpportunityAward>(`opportunity_awards?select=*&award_company_id=eq.${encodeURIComponent(id)}&order=award_date.desc.nullslast,created_at.desc`)}
+export async function getBuyerBySlug(slug:string){return (await rows<BuyerIntelligence>(`buyer_intelligence?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`))[0]??null}
+export async function getBuyerOpportunities(name:string){return rows<Opportunity>(`opportunities?select=*&buyer=eq.${encodeURIComponent(name)}&region=eq.Sarawak&order=posted_date.desc.nullslast`)}
+export async function getBuyerAwards(name:string){return rows<OpportunityAward>(`opportunity_awards?select=*&buyer=eq.${encodeURIComponent(name)}&order=award_date.desc.nullslast,created_at.desc`)}
+export async function getPlatformMetrics():Promise<PlatformMetrics>{const fallback={opportunities_tracked:0,companies_indexed:0,verified_deals:0,verified_business_generated:0,currency:'MYR'};return (await rows<PlatformMetrics>('platform_metrics?select=*'))[0]??fallback}
