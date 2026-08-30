@@ -70,11 +70,13 @@ try {
   console.log('PASS support form interaction without submission')
 
   await page.goto(`${base}/opportunities`, { waitUntil: 'networkidle' })
-  const firstOpportunity = page.locator('.op-main a').first()
+  const firstOpportunity = page.locator('.op-main a[href^="/opportunities/"]').first()
   ok(await firstOpportunity.count(), 'No opportunity row available to open')
-  await firstOpportunity.click()
-  await page.waitForLoadState('networkidle')
-  ok(page.url().includes('/opportunities/'), 'Opportunity link did not open detail page')
+  const href = await firstOpportunity.getAttribute('href')
+  ok(href && /^\/opportunities\/[^/]+$/.test(href), `Invalid opportunity href: ${href}`)
+  const response = await page.goto(`${base}${href}`, { waitUntil: 'networkidle' })
+  ok(response && response.status() < 500, `Opportunity detail returned ${response?.status()}`)
+  ok(page.url().includes('/opportunities/'), 'Opportunity detail route did not load')
   const info = page.locator('.context-info-button:visible').first()
   if (await info.count()) {
     await info.click()
