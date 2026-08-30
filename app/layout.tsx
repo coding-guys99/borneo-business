@@ -1,6 +1,7 @@
 import './globals.css'
 import './mobile-enhancements.css'
 import './intelligence.css'
+import './tender-detail.css'
 import './context-info.css'
 import './support-subscription.css'
 import './ui-fixes.css'
