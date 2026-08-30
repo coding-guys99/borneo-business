@@ -15,11 +15,7 @@ export default async function OpportunityDetailPage({params}:{params:Promise<{id
  const {id}=await params
  const opportunity=await getOpportunityById(id)
  if(!opportunity||opportunity.region!=='Sarawak')notFound()
- const [awards,snapshot,buyerLink]=await Promise.all([
-  getOpportunityAwards(id),
-  getOfficialTenderSnapshot(opportunity.source_url),
-  getBuyerByName(opportunity.buyer)
- ])
+ const [awards,snapshot,buyerLink]=await Promise.all([getOpportunityAwards(id),getOfficialTenderSnapshot(opportunity.source_url),getBuyerByName(opportunity.buyer)])
  const buyerInfo=buyerDisplayName(opportunity.buyer)
  const officialText=[...snapshot.fields.flatMap(f=>[f.label,f.value]),...snapshot.content].join(' ')
  const pageTerms=contextualTerms({buyer:opportunity.buyer,title:opportunity.title,reference:opportunity.reference,extraText:officialText})
@@ -38,8 +34,14 @@ export default async function OpportunityDetailPage({params}:{params:Promise<{id
  if(accessTier==='free')return <OpportunityFreeDetailView opportunity={opportunity} awards={awards} buyerInfo={{display:buyerInfo.display,fullName:buyerInfo.fullName}} pageTerms={pageTerms} snapshot={snapshot}/>
  const assessment=assessBid(opportunity,company)
  const intelligence=extractTenderIntelligence(opportunity,snapshot)
- return <>
-  <div className="section" style={{paddingBottom:0}}><div className="container"><TenderIntelligencePanel data={intelligence}/></div></div>
+ const today=new Date().toISOString().slice(0,10)
+ const isOpen=!opportunity.closing_date||opportunity.closing_date>=today
+ const hasAward=awards.length>0
+ return <div className="subscribed-tender-page">
+  <div className="section subscribed-tender-intro" style={{paddingBottom:0}}><div className="container tender-detail-v2">
+   <header className="tender-title-block subscribed-primary-title"><div className="eyebrow">PUBLIC PROCUREMENT · SARAWAK</div><h1>{opportunity.title}</h1><div className="tender-head-meta"><span className={`status-pill ${hasAward?'awarded':isOpen?'open':'closed'}`}>{hasAward?'Awarded':isOpen?'Open':'Closed'}</span><span>{opportunity.reference??'—'}</span><span>{buyerInfo.display}</span><span>{opportunity.closing_date??'—'}</span></div></header>
+   <TenderIntelligencePanel data={intelligence}/>
+  </div></div>
   <OpportunityDetailView opportunity={opportunity} awards={awards} assessment={assessment} companyPresent={Boolean(company)} buyerInfo={{display:buyerInfo.display,fullName:buyerInfo.fullName}} buyerLink={buyerLink?{slug:buyerLink.slug,canonical_name:buyerLink.canonical_name}:null} pageTerms={pageTerms} snapshot={snapshot}/>
- </>
+ </div>
 }
