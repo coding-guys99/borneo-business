@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 
 const base = process.env.BASE_URL || 'http://127.0.0.1:3000'
-const routes = ['/', '/opportunities', '/market', '/signin', '/onboarding', '/support', '/qa', '/subscribe', '/about', '/purpose', '/trust', '/trust/data-sources', '/trust/data-accuracy', '/trust/translation', '/legal/terms', '/legal/privacy', '/legal/disclaimer', '/legal/third-party', '/procurement-guide']
+const routes = ['/', '/opportunities', '/market', '/signin', '/onboarding', '/support', '/qa', '/subscribe', '/about', '/purpose', '/trust', '/trust/data-sources', '/trust/source-compliance', '/trust/data-accuracy', '/trust/translation', '/legal/terms', '/legal/privacy', '/legal/disclaimer', '/legal/third-party', '/procurement-guide']
 
 function ok(condition, message) { if (!condition) throw new Error(message) }
 
