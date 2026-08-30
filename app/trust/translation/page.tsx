@@ -1,0 +1,7 @@
+import LegalPage from '@/components/legal-page'
+export default function Page(){return <LegalPage eyebrow="Trust & Data" title="Translation Notice" intro="Translations are provided to make business information easier to understand. They are a convenience feature, not an official translation of procurement documents." sections={[
+ {title:'How translation works',body:['Selected Borneo Business summaries and guidance may be translated using an open-source machine-translation model. Generated translations may be stored in a shared cache so the same unchanged content does not need to be translated repeatedly.']},
+ {title:'Protected terminology',body:['We take steps to preserve selected procurement terms and abbreviations such as UPKJ, CIDB, JKR, MOF, RFQ, RFP, Bumiputera and contractor grade references. Automated translation can still contain errors or awkward wording.']},
+ {title:'What remains authoritative',body:['Official tender titles, references and source links are not replaced by our translated interpretation. Where translated text conflicts with the original source, users should rely on the original issuing source.']},
+ {title:'Legal and policy content',body:['Formal legal policies should not rely on machine translation for interpretation. Where Borneo Business provides fixed translated legal text, the English version is intended to prevail if versions are inconsistent, subject to applicable law.']}
+ ]}/>}
