@@ -17,7 +17,8 @@ export default async function OpportunityDetailPage({params}:{params:Promise<{id
   getBuyerByName(opportunity.buyer)
  ])
  const buyerInfo=buyerDisplayName(opportunity.buyer)
- const pageTerms=contextualTerms({buyer:opportunity.buyer,title:opportunity.title,reference:opportunity.reference})
+ const officialText=[...snapshot.fields.flatMap(f=>[f.label,f.value]),...snapshot.content].join(' ')
+ const pageTerms=contextualTerms({buyer:opportunity.buyer,title:opportunity.title,reference:opportunity.reference,extraText:officialText})
  let company:CompanyProfile|null=null
  let signedIn=false
  try{
