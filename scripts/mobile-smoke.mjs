@@ -25,15 +25,16 @@ try {
   }
 
   await page.goto(`${base}/`, { waitUntil: 'networkidle' })
-  const menu = page.locator('.mobile-menu')
-  await page.locator('.hamburger').click()
+  const hamburger = page.locator('.hamburger:visible').first()
+  const menu = page.locator('.mobile-menu:visible').first()
+  await hamburger.click()
   ok(await menu.evaluate(el => el.classList.contains('open')), 'Hamburger menu did not open')
-  await page.locator('.language-toggle').click()
-  const languageOptions = page.locator('.language-options')
+  await menu.locator('.language-toggle').click()
+  const languageOptions = menu.locator('.language-options')
   ok((await languageOptions.boundingBox())?.height > 1, 'Language submenu did not expand')
-  await page.getByRole('button', { name: /简体中文/ }).click()
+  await menu.getByRole('button', { name: /简体中文/ }).click()
   ok(((await languageOptions.boundingBox())?.height || 0) <= 1, 'Collapsed language submenu still reserves visible space')
-  await page.locator('.hamburger').click()
+  await hamburger.click()
   ok(!(await menu.evaluate(el => el.classList.contains('open'))), 'Hamburger menu did not close')
   console.log('PASS mobile hamburger + language collapse')
 
@@ -74,14 +75,15 @@ try {
   await firstOpportunity.click()
   await page.waitForLoadState('networkidle')
   ok(page.url().includes('/opportunities/'), 'Opportunity link did not open detail page')
-  const info = page.locator('.context-info-button')
+  const info = page.locator('.context-info-button:visible').first()
   if (await info.count()) {
     await info.click()
-    ok(await page.locator('.context-info-drawer').evaluate(el => el.classList.contains('open')), 'Information drawer did not open')
-    await page.locator('.context-drawer-close').click()
-    ok(!(await page.locator('.context-info-drawer').evaluate(el => el.classList.contains('open'))), 'Information drawer did not close')
+    const drawer=page.locator('.context-info-drawer.open').first()
+    ok(await drawer.count(), 'Information drawer did not open')
+    await drawer.locator('.context-drawer-close').click()
+    ok(!(await drawer.evaluate(el => el.classList.contains('open'))), 'Information drawer did not close')
   }
-  const disclosure = page.locator('.detail-disclosure').first()
+  const disclosure = page.locator('.detail-disclosure:visible').first()
   if (await disclosure.count()) {
     await disclosure.locator('summary').click()
     ok(await disclosure.evaluate(el => el.hasAttribute('open')), 'Tender disclosure did not expand')
