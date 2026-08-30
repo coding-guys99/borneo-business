@@ -1,0 +1,8 @@
+import LegalPage from '@/components/legal-page'
+export default function Page(){return <LegalPage eyebrow="Legal" title="Disclaimer" intro="Borneo Business provides business discovery and intelligence information. It does not replace official procurement documents or professional advice." note="Borneo Business is an independent platform and is not affiliated with, operated by or endorsed by the Government of Sarawak or any other government agency unless expressly stated." sections={[
+ {title:'Information only',body:['Content is provided for general business information and discovery purposes. It is not legal, procurement, financial, tax, investment or other professional advice.']},
+ {title:'Procurement decisions',body:['Users are responsible for confirming eligibility, scope, deadlines, fees, briefings, document requirements and submission procedures with the relevant issuing organization before acting.']},
+ {title:'Accuracy and availability',body:['We do not warrant that every record, summary, translation, classification or external link is complete, current or error-free. External sources can change independently of Borneo Business.']},
+ {title:'Commercial outcomes',body:['Discovery of an opportunity, introduction, match or market signal does not guarantee qualification, award, revenue or any other commercial result.']},
+ {title:'Limitation',body:['To the extent permitted by applicable law, Borneo Business is not responsible for losses arising solely from reliance on platform summaries where the relevant official source or issuing organization was available for verification.']}
+ ]}/>}
