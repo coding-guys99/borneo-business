@@ -22,7 +22,10 @@ export default function ContextInfoDrawer({terms,sourceUrl,reference}:Props){
   <aside className={`context-info-drawer ${open?'open':''}`} aria-hidden={!open}><div className="context-drawer-inner">
    <div className="context-drawer-head"><div><div className="eyebrow">{c.eyebrow}</div><h2>{c.title}</h2><p>{c.lead}</p></div><button className="context-drawer-close" type="button" aria-label={c.close} onClick={()=>setOpen(false)}>×</button></div>
    {sourceUrl&&<section className="context-document-section"><div><span className="context-section-label">{c.doc}</span><strong>{c.original}</strong><p>{c.docText}</p></div><OfficialPdfButton sourceUrl={sourceUrl} reference={reference??null}/></section>}
-   {terms.length>0&&<div className="context-term-list">{terms.map(term=><article className="context-term" key={term.code}><div className="context-term-code">{term.code}</div><div><strong>{term.name}</strong>{term.localName&&<span className="context-local-name">{term.localName}</span>}<span className="context-zh-name">{term.zhName}</span><p>{term.description}</p></div></article>)}</div>}
+   {terms.length>0&&<div className="context-term-list">{terms.map(term=>{
+    const description=lang==='zh'?(term.descriptionZh??term.description):lang==='ms'?(term.descriptionMs??term.description):term.description
+    return <article className="context-term" key={term.code}><div className="context-term-code">{term.code}</div><div><strong>{term.name}</strong>{term.localName&&<span className="context-local-name">{term.localName}</span>}{lang!=='zh'&&<span className="context-zh-name">{term.zhName}</span>}<p>{description}</p></div></article>
+   })}</div>}
   </div></aside>
  </>
 }
