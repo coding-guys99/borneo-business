@@ -5,7 +5,7 @@ import {useI18n} from '@/components/i18n'
 
 type Buyer={canonical_name:string;open_opportunities:number;total_opportunities:number;awards_published:number;unique_winners:number}
 type Op={id:string;title:string;reference:string|null;industry:string|null;closing_date:string|null}
-type Award={id:string;tender_title:string|null;tender_reference:string|null;procurement_type:string;awarded_company:string;award_date:string|null}
+type Award={id:number;tender_title:string|null;tender_reference:string|null;procurement_type:string;awarded_company:string;award_date:string|null}
 type Top=[string,number][]
 const copy={
  en:{back:'← Opportunities',eyebrow:'BUYER PROFILE · SARAWAK',lead:'Observed procurement activity from public records. Use this page to understand what this buyer is publishing and which companies have appeared in published award results.',open:'Open opportunities',tracked:'Opportunities tracked',awards:'Awards observed',winners:'Winning companies',current:'Current opportunities',noRef:'No reference',general:'General',closing:'Closing',frequent:'Companies appearing most often in observed awards',historyNote:'Historical observation only. This does not imply preference, affiliation or future award likelihood.',observed:'observed award',recent:'Recent award activity',result:'Award result',successful:'Successful tenderer',awardDate:'Award date',public:'Observed public data',trust:'Counts are based on records currently indexed by Borneo Business, not the buyer’s complete procurement history. Verify individual records with official sources.'},
