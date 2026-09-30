@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Sibu City — Mobile Demo</title>
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <div class="hud">
+    <div class="top-row">
+      <div class="brand">SIBU CITY <span>MOBILE</span></div>
+      <div class="status">
+        <div>RM <b id="cash">12</b></div>
+        <div id="time">18:42</div>
+        <div id="weather">Rain</div>
+      </div>
+    </div>
+
+    <div class="mission compact" id="missionBox">
+      <div class="mission-pin">◆</div>
+      <div>
+        <div class="eyebrow">CURRENT MISSION</div>
+        <div class="mission-title" id="missionTitle">Tapao kampua.</div>
+        <div class="mission-sub" id="missionSub">Drive to Central Market.</div>
+      </div>
+    </div>
+
+    <div class="speed-card"><span id="speed">0</span><small>KM/H</small></div>
+  </div>
+
+  <div class="desktop-hint">WASD / Arrow keys · Shift boost · R reset</div>
+  <div class="toast" id="toast"></div>
+
+  <div class="touch-layer" id="touchLayer">
+    <div class="joystick-wrap" id="joystickWrap">
+      <div class="joystick-ring"></div>
+      <div class="joystick-knob" id="joystickKnob"></div>
+      <div class="joystick-label">MOVE</div>
+    </div>
+
+    <div class="action-pad">
+      <button class="action-btn action" id="actionBtn" aria-label="Action">
+        <span class="action-icon">✦</span><small>ACTION</small>
+      </button>
+      <button class="action-btn boost" id="boostBtn" aria-label="Boost">
+        <span class="action-icon">»</span><small>BOOST</small>
+      </button>
+      <button class="action-btn brake" id="brakeBtn" aria-label="Brake">
+        <span class="action-icon">■</span><small>BRAKE</small>
+      </button>
+      <button class="camera-btn" id="cameraBtn" aria-label="Reset camera">↻</button>
+    </div>
+
+    <div class="camera-zone" id="cameraZone" aria-hidden="true"></div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
